@@ -16,6 +16,11 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+    anger = []
+    surprise = []
+    fear = []
+    sadness = []
+    joy = []
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -30,18 +35,8 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            Emotional.main(filename)
-            return redirect(url_for('uploaded_file', filename=filename))
-    """return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''"""
-    return render_template('index.html')
+            anger, surprise, fear, sadness, joy = Emotional.main(filename)
+    return render_template('index.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

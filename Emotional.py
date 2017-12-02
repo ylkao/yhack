@@ -47,17 +47,26 @@ def textAnalysis(fileName):
     tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
     sentNum = 1
     # array for graphic visualization
-    graph = []
+    anger = []
+    surprise = []
+    fear = []
+    sadness = []
+    joy = []
     for sentence in tokenizedUserInput:
-        graph.append(sentAnalysis(sentence, sentNum, False))
+        a, b, c, d, e = sentAnalysis(sentence, sentNum, False)
+        anger.append(a)
+        surprise.append(b)
+        fear.append(c)
+        sadness.append(d)
+        joy.append(e)
         sentNum += 1
 
     # Get emotion for entire passage as a whole.
     sentAnalysis(userInput, sentNum, True)
     # Create array for graphic visualization of emotions throughout the convo
-    with open('graph.json', 'w') as outfile:
-        json.dump(graph, outfile)
-    return graph
+    # with open('graph.json', 'w') as outfile:
+    #     json.dump(graph, outfile)
+    return anger, surprise, fear, sadness, joy
 
 # Helper function to get emotion of a single sentence
 def sentAnalysis(sentence, sentNum, entireText):
@@ -91,7 +100,8 @@ def sentAnalysis(sentence, sentNum, entireText):
             else:
                 print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
-        # return [sentence] + emoDict.values()
+        emoVals = emoDict.values()
+        return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
         
 # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
 def voiceAnalysis():
@@ -154,13 +164,13 @@ def main(fileName):
     # To run the text analysis
     print("Text Analysis:")
     print("")
-    graph = textAnalysis(fileName)
+    anger, surprise, fear, sadness, joy = textAnalysis(fileName)
 
     # To run the voice analysis
     # print("Voice Analysis:")
     # print("")
     #voiceAnalysis()
 
-    return graph
+    return anger, surprise, fear, sadness, joy
 
 # main()
