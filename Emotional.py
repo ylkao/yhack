@@ -59,6 +59,7 @@ Fly back to school, little Starling."
     # Create array for graphic visualization of emotions throughout the convo
     with open('graph.json', 'w') as outfile:
         json.dump(graph, outfile)
+    return graph
 
 # Helper function to get emotion of a single sentence
 def sentAnalysis(sentence, sentNum, entireText):
@@ -155,11 +156,13 @@ def main():
     # To run the text analysis
     print("Text Analysis:")
     print("")
-    textAnalysis()
+    graph = textAnalysis()
 
     # To run the voice analysis
     print("Voice Analysis:")
     print("")
     #voiceAnalysis()
+
+    return graph
 
 main()
