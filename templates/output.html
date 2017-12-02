@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Emotions and Probabilities</title>
+</head>
+<body>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <p></p><input type=file name=file>
+         <input type="submit" value="Upload">
+    </form>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var anger = {{ anger|tojson}};
+        var surprise = {{ surprise|tojson}};
+        var fear = {{ fear|tojson }};
+        var sadness = {{ sadness|tojson}};
+        var joy = {{ joy|tojson}};
+        var data = {"Anger": anger, "Surprise": surprise, "Fear":fear, "Sadness":sadness, "Joy":joy};
+        for (key in data) {
+          data[key].unshift(["Sentence", key]);
+          var vis = google.visualization.arrayToDataTable(data[key]);
+
+          var options = {
+            title: key,
+            curveType: 'function',
+            legend: { position: 'bottom' }
+          };
+
+          var chart = new google.visualization.LineChart(document.getElementById(key));
+
+          chart.draw(vis, options);
+        }
+        // anger.unshift(["Sentence", "Anger"]);
+        // var data = google.visualization.arrayToDataTable(graph);
+
+        // var options = {
+        //   title: 'Emotions',
+        //   curveType: 'function',
+        //   legend: { position: 'bottom' }
+        // };
+
+        // var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        // chart.draw(data, options);
+      }
+    
+    </script>
+
+    <div id="Anger" style="width: 900px; height: 500px"></div>
+    <div id="Surprise" style="width: 900px; height: 500px"></div>
+    <div id="Fear" style="width: 900px; height: 500px"></div>
+    <div id="Sadness" style="width: 900px; height: 500px"></div>
+    <div id="Joy" style="width: 900px; height: 500px"></div>
+
+
+  </body>
+</html>
