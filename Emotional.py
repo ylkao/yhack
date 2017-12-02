@@ -20,7 +20,7 @@ def textAnalysis():
     # userInput = "Hello."
 
     # To test else case
-    userInput = "Mai nam iz Gabe, I am da boi, on Interwebz, Who breeng u joy.\
+    userInput = "Mai nam i\'z Mr. Gabe, I am da boi, on Interwebz, Who breeng u joy.\
                 Wth all mai barkz, an sniffs an sneeze, I do teh sing, I am da meemz.\
                 Altho am nao, with starry light, up in heavan, I sleepng tight.\
                 So plz no cri, Remember mee, as happy boi, I'll always be."
