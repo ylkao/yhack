@@ -10,40 +10,38 @@ import json
 # get file upload or text input
 
 # Emotion analysis for text
-def textAnalysis():
+def textAnalysis(fileName):
 
     # API key to access indicoio api
     indicoio.config.api_key = '06ca2da07a6fd7c7746f1d4c202bdc5a'
 
     # Determine whether to use inputted text or to use user uploaded file
-    # userInput = sys.stdin.readlines()                                     ----> need to figure out right way to read lines/get file
-    # if userInput == none:
-    # userInput = # get the uploaded file and read them
+    userInput = open('uploads/' + fileName).read()
 
     # To test neutral case
     # userInput = "Hello."
 
     # To test else case
-    """userInput = "Mai nam i\'z Mr. Gabe, I am da boi, on Interwebz, Who breeng u joy.\
-                Wth all mai barkz, an sniffs an sneeze, I do teh sing, I am da meemz.\
-                Altho am nao, with starry light, up in heavan, I sleepng tight.\
-                So plz no cri, Remember mee, as happy boi, I'll always be."
-    """
-    userInput = "Silence of the Lambs (1991) DR. LECTER Oh, Officer Starling... do you think you can \
-    dissect me with this bluntlittle tool? CLARICE No. I only hoped that your knowledge \
-    -Suddenly he whips the tray back at her, with a metallic CLANG that makes her start. His voice remains a pleasant purr. (CONT'D) You're sooo ambitious, aren't you...? You know what you look like tome, with your good bag and your cheap shoes? You look like a rube. Awell-scrubbed, hustling rube with a little taste... Good nutrition hasgiven you some length of bone, but you're not more than one generationfrom poor white trash, are you - Officer Starling...? That accentyou're trying so desperately to shed - pure West Virginia. What wasyour father, dear? Was he a coal miner? Did he stink of the lamp...? \
-    And oh, how quickly the boys found you! All those tedious, sticky fumblings, in the back seats of cars, \
-    while you could only dream of getting out. \
-    Getting anywhere - yes? Getting all the way - to theF...B...I.His every word has struck her \
-    like a tiny, precise dart. But shesquares her jaw and won't give ground. CLARICE \
-    You see a lot, Dr. Lecter. But are you strong enough to point thathigh-powered perception at yourself? \
-    How about it...? Look at yourselfand write down the truth.(she slams the tray back at him)Or maybe you're afraid to. \
-    DR. LECTERYou're a tough one, aren't you? \
-CLARICE Reasonably so. Yes. DR. LECTER And you'd hate to think you were common. \
-My, wouldn't that sting! Wellyou're far from common, Officer Starling. All you have is the fear ofit. \
-(beat)Now please excuse me. Good day. CLARICE And the questionnaire...? DR. LECTER \
-A census taker once tried to test me. I ate his liver with some favabeans and a nice chianti... \
-Fly back to school, little Starling."
+    # userInput = "Mai nam i\'z Mr. Gabe, I am da boi, on Interwebz, Who breeng u joy.\
+    #             Wth all mai barkz, an sniffs an sneeze, I do teh sing, I am da meemz.\
+    #             Altho am nao, with starry light, up in heavan, I sleepng tight.\
+    #             So plz no cri, Remember mee, as happy boi, I'll always be."
+
+#     userInput = "Silence of the Lambs (1991) DR. LECTER Oh, Officer Starling... do you think you can \
+#     dissect me with this bluntlittle tool? CLARICE No. I only hoped that your knowledge \
+#     -Suddenly he whips the tray back at her, with a metallic CLANG that makes her start. His voice remains a pleasant purr. (CONT'D) You're sooo ambitious, aren't you...? You know what you look like tome, with your good bag and your cheap shoes? You look like a rube. Awell-scrubbed, hustling rube with a little taste... Good nutrition hasgiven you some length of bone, but you're not more than one generationfrom poor white trash, are you - Officer Starling...? That accentyou're trying so desperately to shed - pure West Virginia. What wasyour father, dear? Was he a coal miner? Did he stink of the lamp...? \
+#     And oh, how quickly the boys found you! All those tedious, sticky fumblings, in the back seats of cars, \
+#     while you could only dream of getting out. \
+#     Getting anywhere - yes? Getting all the way - to theF...B...I.His every word has struck her \
+#     like a tiny, precise dart. But shesquares her jaw and won't give ground. CLARICE \
+#     You see a lot, Dr. Lecter. But are you strong enough to point thathigh-powered perception at yourself? \
+#     How about it...? Look at yourselfand write down the truth.(she slams the tray back at him)Or maybe you're afraid to. \
+#     DR. LECTERYou're a tough one, aren't you? \
+# CLARICE Reasonably so. Yes. DR. LECTER And you'd hate to think you were common. \
+# My, wouldn't that sting! Wellyou're far from common, Officer Starling. All you have is the fear ofit. \
+# (beat)Now please excuse me. Good day. CLARICE And the questionnaire...? DR. LECTER \
+# A census taker once tried to test me. I ate his liver with some favabeans and a nice chianti... \
+# Fly back to school, little Starling."
 
     # Break up text into sentences and get emotion for each individual sentence
     tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
@@ -93,7 +91,7 @@ def sentAnalysis(sentence, sentNum, entireText):
             else:
                 print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
-        return [sentence] + emoDict.values()
+        # return [sentence] + emoDict.values()
         
 # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
 def voiceAnalysis():
@@ -152,17 +150,17 @@ def voiceAnalysis():
 
     voice.destroy()
 
-def main():
+def main(fileName):
     # To run the text analysis
     print("Text Analysis:")
     print("")
-    graph = textAnalysis()
+    graph = textAnalysis(fileName)
 
     # To run the voice analysis
-    print("Voice Analysis:")
-    print("")
+    # print("Voice Analysis:")
+    # print("")
     #voiceAnalysis()
 
     return graph
 
-main()
+# main()
