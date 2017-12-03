@@ -6,10 +6,19 @@
 <style>
 
   .circle1, .circle2 {
-    height: 50px;
-    width: 50px;
+    /*height: 50px;
+    width: 50px;*/
+    height: 30px;
+    width: 30px;
     background-color: #555;
     border-radius: 50%;
+  }
+
+  #p1 {
+    float: left;
+  }
+  #p2 {
+    float: right;
   }
 
   a {
@@ -38,35 +47,41 @@ a:hover {
 }
 
 .chart {
-    min-width: 320px;
-    max-width: 800px;
-    height: 220px;
+    height: 150px;
+    margin: 0;
+}
+.graph {
+    float:left;/*
+    display: inline;*/
+}
+#nav {
+    display: block;
     margin: 0 auto;
+    text-align: center;
+    width:; 100px;
 }
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 
-<body>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <p></p><input type=file name=file>
-         <input type="submit" value="Upload">
-    </form>
+<body> <!-- background="{{ url_for('static', filename='light-gradient.png') }}" -->
+    <a href="{{ url_for('upload_file') }}">Upload New File</a>
 
+<div id="p1">
 <h2>Person 1</h2>
-
 <div class="circle1" id="person1"></div>
+</div>
 
+<div id="p2">
 <h2>Person 2</h2>
 <div class="circle2" id="person2"></div>
+</div>
 
-<button type="button" onClick="prev()" id="prev">Previous</button>
+<div id="nav">
 <p id="sentence"></p>
-
+<button type="button" onClick="prev()" id="prev">Previous</button>
 <button type="button" onClick="next()" id="next">Next</button>
-
-
+</div>
 
 <script type="text/javascript"> 
 //I'm assuming I have an array that look like this: [[sentence, person (0 or 1), 1, 2, 3, 4, 5], ....] and am calling it data
@@ -116,23 +131,23 @@ function prev() {
 function getColor(emotion) {
   var maxIndex = 2;
   var max = emotion[2];
-  console.log(emotion);
   for(var i = 3; i < emotion.length; i++) {
     if(emotion[i] > max) {
       max = emotion[i];
       maxIndex = i;
     }
   }
+  //'#AA4643', '#89A54E', '#80699B', '#4572A7', '#ffff00'
   if(maxIndex == 2) {
-    return "red"; //anger
+    return '#AA4643'; //anger
   } else if(maxIndex == 3) {
-    return "green"; //surprise
+    return '#89A54E'; //surprise
   } else if(maxIndex == 4) {
-    return "purple"; //fear
+    return '#80699B'; //fear
   } else if(maxIndex == 5) {
-    return "blue"; //sadness
+    return '#4572A7'; //sadness
   } else if(maxIndex == 6) {
-    return "yellow"; //joy
+    return '#ffff00'; //joy
   }
 }
 
@@ -140,7 +155,10 @@ function getColor(emotion) {
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
-<div id="container"></div>
+<div class="graph" id="container1">
+</div>
+<div class="graph" id="container2">
+</div>
 <script>
 
 /*
@@ -155,7 +173,23 @@ small variation for each data set, and a mouse/touch event handler to bind the c
  * In order to synchronize tooltips and crosshairs, override the
  * built-in events with handlers defined on the parent element.
  */
-$('#container').bind('mousemove touchmove touchstart', function (e) {
+$('#container1').bind('mousemove touchmove touchstart', function (e) {
+    var chart,
+        point,
+        i,
+        event;
+
+    for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+        chart = Highcharts.charts[i];
+        event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
+        point = chart.series[0].searchPoint(event, true); // Get the hovered point
+
+        if (point) {
+            point.highlight(e);
+        }
+    }
+});
+$('#container2').bind('mousemove touchmove touchstart', function (e) {
     var chart,
         point,
         i,
@@ -208,20 +242,17 @@ function syncExtremes(e) {
 // https://github.com/highcharts/highcharts/blob/master/samples/data/activity.json
 var firstGraph = {{ data1|tojson }};
 var secondGraph = {{ data2|tojson }};
-function createGraph(activity) {
+var colors = ['#AA4643', '#89A54E', '#80699B', '#4572A7', '#ffff00'];
+function createGraph1(activity) {
     $.each(activity.datasets, function (i, dataset) {
 
         // Add X values
         dataset.data = Highcharts.map(dataset.data, function (val, j) {
-            console.log(val);
-            console.log("j");
-            console.log(j);
-
             return [activity.xData[j], val];
         });
 
         $('<div class="chart">')
-            .appendTo('#container')
+            .appendTo('#container1')
             .highcharts({
                 chart: {
                     marginLeft: 40, // Keep all charts left aligned
@@ -275,7 +306,79 @@ function createGraph(activity) {
                     data: dataset.data,
                     name: dataset.name,
                     type: dataset.type,
-                    color: Highcharts.getOptions().colors[i],
+                    color: colors[i],
+                    fillOpacity: 0.3,
+                    tooltip: {
+                        valueSuffix: ' ' + dataset.unit
+                    }
+                }]
+            });
+    });
+};
+function createGraph2(activity) {
+    $.each(activity.datasets, function (i, dataset) {
+
+        // Add X values
+        dataset.data = Highcharts.map(dataset.data, function (val, j) {
+            return [activity.xData[j], val];
+        });
+
+        $('<div class="chart">')
+            .appendTo('#container2')
+            .highcharts({
+                chart: {
+                    marginLeft: 40, // Keep all charts left aligned
+                    spacingTop: 20,
+                    spacingBottom: 20
+                },
+                title: {
+                    text: dataset.name,
+                    align: 'left',
+                    margin: 0,
+                    x: 30
+                },
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    enabled: false
+                },
+                xAxis: {
+                    crosshair: true,
+                    events: {
+                        setExtremes: syncExtremes
+                    },
+                    labels: {
+                        format: '{value} response'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'probability'
+                    }
+                },
+                tooltip: {
+                    positioner: function () {
+                        return {
+                            x: this.chart.chartWidth - this.label.width, // right aligned
+                            y: 10 // align to title
+                        };
+                    },
+                    borderWidth: 0,
+                    backgroundColor: 'none',
+                    pointFormat: '{point.y}',
+                    headerFormat: '',
+                    shadow: false,
+                    style: {
+                        fontSize: '18px'
+                    },
+                    valueDecimals: dataset.valueDecimals
+                },
+                series: [{
+                    data: dataset.data,
+                    name: dataset.name,
+                    type: dataset.type,
+                    color: colors[i],
                     fillOpacity: 0.3,
                     tooltip: {
                         valueSuffix: ' ' + dataset.unit
@@ -285,13 +388,10 @@ function createGraph(activity) {
     });
 };
 $(function() {
-  createGraph(firstGraph);
-  createGraph(secondGraph);
+  createGraph1(firstGraph);
+  createGraph2(secondGraph);
 })
 </script>
-
-
-
 
   </body>
 </html>
