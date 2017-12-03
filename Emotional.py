@@ -45,28 +45,49 @@ def textAnalysis(fileName):
 
     # Break up text into sentences and get emotion for each individual sentence
     tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
-    sentNum = 1
+
+    with open ('uploads/' + fileName, "r") as myfile:
+    tokenizedUserInput = myfile.read("\n \n", "")
+
+
+    sentNumP0 = 1
+    sentNumP1 = 1
     # array for graphic visualization
-    anger = []
-    surprise = []
-    fear = []
-    sadness = []
-    joy = []
+    angerP0 = []
+    surpriseP0 = []
+    fearP0 = []
+    sadnessP0 = []
+    joyP0 = []
+
+    angerP1 = []
+    surpriseP1 = []
+    fearP1 = []
+    sadnessP1 = []
+    joyP1 = []
     for sentence in tokenizedUserInput:
-        a, b, c, d, e = sentAnalysis(sentence, sentNum, False)
-        anger.append(a)
-        surprise.append(b)
-        fear.append(c)
-        sadness.append(d)
-        joy.append(e)
-        sentNum += 1
+        if sentence % 2 == 0:
+            a0, b0, c0, d0, e0 = sentAnalysis(sentence, sentNumP0, False)
+            angerP0.append(a0)
+            surpriseP0.append(b0)
+            fearP0.append(c0)
+            sadnessP0.append(d0)...
+            joyP0.append(e0)
+            sentNumP0 += 1
+        else:
+            a1, b1, c1, d1, e1 = sentAnalysis(sentence, sentNumP1, False)
+            angerP1.append(a1)
+            surpriseP1.append(b1)
+            fearP1.append(c1)
+            sadnessP1.append(d1)
+            joyP1.append(e1)
+            sentNumP1 += 1
 
     # Get emotion for entire passage as a whole.
     sentAnalysis(userInput, sentNum, True)
     # Create array for graphic visualization of emotions throughout the convo
     # with open('graph.json', 'w') as outfile:
     #     json.dump(graph, outfile)
-    return anger, surprise, fear, sadness, joy
+    return angerP0, surpriseP0, fearP0, sadnessP0, joyP0, angerP1, surpriseP1, fearP1, sadnessP1, joyP1
 
 # Helper function to get emotion of a single sentence
 def sentAnalysis(sentence, sentNum, entireText):
@@ -100,10 +121,10 @@ def sentAnalysis(sentence, sentNum, entireText):
             else:
                 print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
-        emoVals = emoDict.values()
+        emoVals = list(emoDict.values())
         return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
-        
-# Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
+
+# Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?!
 def voiceAnalysis():
 
     # Adding the API and importing the Vokaturi module
@@ -134,7 +155,7 @@ def voiceAnalysis():
     emotionProbabilities = Vokaturi.EmotionProbabilities()
     voice.extract(quality, emotionProbabilities)
     emoDict = {"Neutral" : emotionProbabilities.neutrality, "Happy" : emotionProbabilities.happiness,
-                "Sad" : emotionProbabilities.sadness, "Angry" : emotionProbabilities.anger, 
+                "Sad" : emotionProbabilities.sadness, "Angry" : emotionProbabilities.anger,
                 "Fear" : emotionProbabilities.fear}
 
     # Finding main emotion in voice file
