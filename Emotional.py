@@ -33,9 +33,9 @@ def textAnalysis(fileName):
     sentNum = 1
     # array for graphic visualization
     data1 = dict()
-    data1["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    data1["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}]
     data2 = dict()
-    data2["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    data2["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}]
     response = []
     for i in range(5):
         data1["datasets"][i]["data"] = []
@@ -112,6 +112,12 @@ def sentAnalysis(sentence, sentNum, entireText):
         #     else:
         #         print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
+<<<<<<< HEAD
+=======
+        # emoVals = list(emoDict.values())
+        # return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
+        return list(emoDict.values())
+>>>>>>> c02cee2ea32118a09f33d949063a13d85b9f9cab
 
         
 # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
