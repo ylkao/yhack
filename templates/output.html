@@ -91,7 +91,20 @@ document.getElementById("prev").disabled = true;
 changeSentence();
 
 function changeSentence() {
-  document.getElementById("sentence").innerHTML = data[index][0];
+    var info = data[index][0] + "<br>";
+
+    if (data[index][1] == 1) {
+        info += "Person 1" + "<br>";
+    } else {
+        info += "Person 2" + "<br>";
+    }
+    info += "Anger: " + data[index][2]  + "<br>";
+    info += "Surprise/Neutral: " + data[index][3]  + "<br>";
+    info += "Fear: " + data[index][4]  + "<br>";
+    info += "Sadness: " + data[index][5]  + "<br>";
+    info += "Joy: " + data[index][6]  + "<br>";
+    
+  document.getElementById("sentence").innerHTML = info;
   if(data[index][1] == 1) {
     document.getElementById("person1").style.backgroundColor = getColor(data[index]);
   } else {
