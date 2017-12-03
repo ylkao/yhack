@@ -31,11 +31,15 @@ def upload_file():
         # if user does not select file, browser also
         # submit a empty part without filename
         if file.filename == '':
-            flash('No selected file')
+            flash('No selected file')   
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            # Emotional.main(filename, 'wav')
+            #anger, surprise, fear, sadness, joy = Emotional.main(filename, file.filename.rsplit('.', 1)[1].lower())
+            #return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
             data1, data2, response = Emotional.main(filename)
             # return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
             return render_template('output.html', data1 = data1, data2=data2, response=response)

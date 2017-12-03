@@ -4,7 +4,6 @@
 <title>Emotions and Probabilities</title>
 </head>
 <style>
-
   .circle1, .circle2 {
     /*height: 50px;
     width: 50px;*/
@@ -13,39 +12,32 @@
     background-color: #555;
     border-radius: 50%;
   }
-
   #p1 {
     float: left;
   }
   #p2 {
     float: right;
   }
-
   a {
     text-decoration: none;
     display: inline-block;
     padding: 8px 16px;
 }
-
 a:hover {
     background-color: #ddd;
     color: black;
 }
-
 .previous {
     background-color: #f1f1f1;
     color: black;
 }
-
 .next {
     background-color: #4CAF50;
     color: white;
 }
-
 .round {
     border-radius: 50%;
 }
-
 .chart {
     height: 150px;
     margin: 0;
@@ -83,13 +75,12 @@ a:hover {
 <button type="button" onClick="next()" id="next">Next</button>
 </div>
 
-<script type="text/javascript"> 
+<script type="text/javascript">
 //I'm assuming I have an array that look like this: [[sentence, person (0 or 1), 1, 2, 3, 4, 5], ....] and am calling it data
 var data = {{ response|tojson }};
 var index = 0;
 document.getElementById("prev").disabled = true;
 changeSentence();
-
 function changeSentence() {
     var info = data[index][0] + "<br>";
 
@@ -110,9 +101,8 @@ function changeSentence() {
   } else {
      document.getElementById("person2").style.backgroundColor = getColor(data[index]);
   }
-  
-}
 
+}
 function next() {
   if (index >= data.length - 1) {
     document.getElementById("next").disabled = true;
@@ -126,7 +116,6 @@ function next() {
     }
   }
 }
-
 function prev() {
   if (index <= 0) {
     document.getElementById("prev").disabled = true;
@@ -140,7 +129,6 @@ function prev() {
     }
   }
 }
-
 function getColor(emotion) {
   var maxIndex = 2;
   var max = emotion[2];
@@ -163,7 +151,6 @@ function getColor(emotion) {
     return '#ffff00'; //joy
   }
 }
-
 </script>
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -173,15 +160,11 @@ function getColor(emotion) {
 <div class="graph" id="container2">
 </div>
 <script>
-
 /*
 The purpose of this demo is to demonstrate how multiple charts on the same page can be linked
 through DOM and Highcharts events and API methods. It takes a standard Highcharts config with a
 small variation for each data set, and a mouse/touch event handler to bind the charts together.
 */
-
-
-
 /**
  * In order to synchronize tooltips and crosshairs, override the
  * built-in events with handlers defined on the parent element.
@@ -191,12 +174,10 @@ $('#container1').bind('mousemove touchmove touchstart', function (e) {
         point,
         i,
         event;
-
     for (i = 0; i < Highcharts.charts.length; i = i + 1) {
         chart = Highcharts.charts[i];
         event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
         point = chart.series[0].searchPoint(event, true); // Get the hovered point
-
         if (point) {
             point.highlight(e);
         }
@@ -207,12 +188,10 @@ $('#container2').bind('mousemove touchmove touchstart', function (e) {
         point,
         i,
         event;
-
     for (i = 0; i < Highcharts.charts.length; i = i + 1) {
         chart = Highcharts.charts[i];
         event = chart.pointer.normalize(e.originalEvent); // Find coordinates within the chart
         point = chart.series[0].searchPoint(event, true); // Get the hovered point
-
         if (point) {
             point.highlight(e);
         }
@@ -224,7 +203,6 @@ $('#container2').bind('mousemove touchmove touchstart', function (e) {
 Highcharts.Pointer.prototype.reset = function () {
     return undefined;
 };
-
 /**
  * Highlight a point by showing tooltip, setting hover state and draw crosshair
  */
@@ -233,13 +211,11 @@ Highcharts.Point.prototype.highlight = function (event) {
     this.series.chart.tooltip.refresh(this); // Show the tooltip
     this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
 };
-
 /**
  * Synchronize zooming through the setExtremes event handler.
  */
 function syncExtremes(e) {
     var thisChart = this.chart;
-
     if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
         Highcharts.each(Highcharts.charts, function (chart) {
             if (chart !== thisChart) {
@@ -250,7 +226,6 @@ function syncExtremes(e) {
         });
     }
 }
-
 // Get the data. The contents of the data file can be viewed at
 // https://github.com/highcharts/highcharts/blob/master/samples/data/activity.json
 var firstGraph = {{ data1|tojson }};
@@ -258,12 +233,10 @@ var secondGraph = {{ data2|tojson }};
 var colors = ['#AA4643', '#89A54E', '#80699B', '#4572A7', '#ffff00'];
 function createGraph1(activity) {
     $.each(activity.datasets, function (i, dataset) {
-
         // Add X values
         dataset.data = Highcharts.map(dataset.data, function (val, j) {
             return [activity.xData[j], val];
         });
-
         $('<div class="chart">')
             .appendTo('#container1')
             .highcharts({
@@ -330,12 +303,10 @@ function createGraph1(activity) {
 };
 function createGraph2(activity) {
     $.each(activity.datasets, function (i, dataset) {
-
         // Add X values
         dataset.data = Highcharts.map(dataset.data, function (val, j) {
             return [activity.xData[j], val];
         });
-
         $('<div class="chart">')
             .appendTo('#container2')
             .highcharts({
