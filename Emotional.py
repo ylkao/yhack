@@ -112,13 +112,6 @@ def sentAnalysis(sentence, sentNum, entireText):
         #     else:
         #         print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
-<<<<<<< HEAD
-=======
-        # emoVals = list(emoDict.values())
-        # return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
-        return list(emoDict.values())
->>>>>>> c02cee2ea32118a09f33d949063a13d85b9f9cab
-
         
 # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
 def voiceAnalysis(fileName):
@@ -153,17 +146,19 @@ def voiceAnalysis(fileName):
             dialogue = [dictionary["from"]]
             curr_speaker = dictionary["speaker"]
 
-    # print("")
-    # print("timestamp0 len: " + str(len(timestamps0)))
-    # print("")
-    # print("timestamp0:")
-    # print(timestamps0)
-    # print("")
-    # print("timestamp1:")
-    # print(timestamps1)
-    # print("")
-    # print("timestamp1 len: " + str(len(timestamps1)))
-    # print("")
+    print("")
+    print("")
+    print("")
+    print("timestamp0 len: " + str(len(timestamps0)))
+    print("")
+    print("")
+    print("")
+    print("timestamp1 len: " + str(len(timestamps1)))
+    print("")
+    print("")
+    print("")
+
+
     
     # Get respective dialogue for each time stamp interval
     curr_speaker, time_index = 0, 0
@@ -240,6 +235,17 @@ def voiceAnalysis(fileName):
                 #################################
 
 
+    print("")
+    print("")
+    print("")
+    print(dialogue0)
+    print("")
+    print("")
+    print("")
+    print(dialogue1)
+    print("")
+    print("")
+    print("")
 
 
 
