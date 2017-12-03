@@ -1,7 +1,7 @@
 import indicoio
 import sys
-import nltk
-nltk.download('punkt')
+# import nltk
+# nltk.download('punkt')
 import numpy
 import scipy.io.wavfile
 import json
@@ -18,41 +18,25 @@ def textAnalysis(fileName):
     # Determine whether to use inputted text or to use user uploaded file
     userInput = open('uploads/' + fileName).read()
 
-    # To test neutral case
-    # userInput = "Hello."
-
-    # To test else case
-    # userInput = "Mai nam i\'z Mr. Gabe, I am da boi, on Interwebz, Who breeng u joy.\
-    #             Wth all mai barkz, an sniffs an sneeze, I do teh sing, I am da meemz.\
-    #             Altho am nao, with starry light, up in heavan, I sleepng tight.\
-    #             So plz no cri, Remember mee, as happy boi, I'll always be."
-
-#     userInput = "Silence of the Lambs (1991) DR. LECTER Oh, Officer Starling... do you think you can \
-#     dissect me with this bluntlittle tool? CLARICE No. I only hoped that your knowledge \
-#     -Suddenly he whips the tray back at her, with a metallic CLANG that makes her start. His voice remains a pleasant purr. (CONT'D) You're sooo ambitious, aren't you...? You know what you look like tome, with your good bag and your cheap shoes? You look like a rube. Awell-scrubbed, hustling rube with a little taste... Good nutrition hasgiven you some length of bone, but you're not more than one generationfrom poor white trash, are you - Officer Starling...? That accentyou're trying so desperately to shed - pure West Virginia. What wasyour father, dear? Was he a coal miner? Did he stink of the lamp...? \
-#     And oh, how quickly the boys found you! All those tedious, sticky fumblings, in the back seats of cars, \
-#     while you could only dream of getting out. \
-#     Getting anywhere - yes? Getting all the way - to theF...B...I.His every word has struck her \
-#     like a tiny, precise dart. But shesquares her jaw and won't give ground. CLARICE \
-#     You see a lot, Dr. Lecter. But are you strong enough to point thathigh-powered perception at yourself? \
-#     How about it...? Look at yourselfand write down the truth.(she slams the tray back at him)Or maybe you're afraid to. \
-#     DR. LECTERYou're a tough one, aren't you? \
-# CLARICE Reasonably so. Yes. DR. LECTER And you'd hate to think you were common. \
-# My, wouldn't that sting! Wellyou're far from common, Officer Starling. All you have is the fear ofit. \
-# (beat)Now please excuse me. Good day. CLARICE And the questionnaire...? DR. LECTER \
-# A census taker once tried to test me. I ate his liver with some favabeans and a nice chianti... \
-# Fly back to school, little Starling."
-
     # Break up text into sentences and get emotion for each individual sentence
     tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
     sentNum = 1
     # array for graphic visualization
-    anger = []
+    """ anger = []
     surprise = []
     fear = []
     sadness = []
-    joy = []
-    for sentence in tokenizedUserInput:
+    joy = [] """
+    data = dict()
+    data["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    for i in range(5):
+        data["datasets"][i]["data"] = []
+        data["datasets"][i]["unit"] = "Response"
+        data["datasets"][i]["type"] = "area"
+        data["datasets"][i]["valueDecimals"] = 0
+   for sentence in tokenizedUserInput:
+        if sentNum % 2 == 0:
+            data["datasets"][0]
         a, b, c, d, e = sentAnalysis(sentence, sentNum, False)
         anger.append(a)
         surprise.append(b)
@@ -60,13 +44,16 @@ def textAnalysis(fileName):
         sadness.append(d)
         joy.append(e)
         sentNum += 1
+    data["xData"] = []
+    for i in range(len(tokenizedUserInput)):
+        data["xData"].append(i + 1)
 
     # Get emotion for entire passage as a whole.
     sentAnalysis(userInput, sentNum, True)
     # Create array for graphic visualization of emotions throughout the convo
     # with open('graph.json', 'w') as outfile:
     #     json.dump(graph, outfile)
-    return anger, surprise, fear, sadness, joy
+    # return anger, surprise, fear, sadness, joy
 
 # Helper function to get emotion of a single sentence
 def sentAnalysis(sentence, sentNum, entireText):
