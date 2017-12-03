@@ -16,44 +16,61 @@ def textAnalysis(fileName):
     indicoio.config.api_key = '06ca2da07a6fd7c7746f1d4c202bdc5a'
 
     # Determine whether to use inputted text or to use user uploaded file
-    userInput = open('uploads/' + fileName).read()
+    # userInput = open('uploads/' + fileName).read()
 
     # Break up text into sentences and get emotion for each individual sentence
-    tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
+    # tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
+
+    tokenizedUserInput = []
+    with open ('uploads/' + fileName, "r") as myfile:
+        txt = myfile.read().replace("\r\n", "\n")
+        tokenizedUserInput = txt.split("\n\n")
     sentNum = 1
     # array for graphic visualization
-    """ anger = []
-    surprise = []
-    fear = []
-    sadness = []
-    joy = [] """
-    data = dict()
-    data["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    data1 = dict()
+    data1["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    data2 = dict()
+    data2["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    response = []
     for i in range(5):
-        data["datasets"][i]["data"] = []
-        data["datasets"][i]["unit"] = "Response"
-        data["datasets"][i]["type"] = "area"
-        data["datasets"][i]["valueDecimals"] = 0
-   for sentence in tokenizedUserInput:
-        if sentNum % 2 == 0:
-            data["datasets"][0]
-        a, b, c, d, e = sentAnalysis(sentence, sentNum, False)
-        anger.append(a)
-        surprise.append(b)
-        fear.append(c)
-        sadness.append(d)
-        joy.append(e)
-        sentNum += 1
-    data["xData"] = []
-    for i in range(len(tokenizedUserInput)):
-        data["xData"].append(i + 1)
+        data1["datasets"][i]["data"] = []
+        data1["datasets"][i]["unit"] = "Response"
+        data1["datasets"][i]["type"] = "area"
+        data1["datasets"][i]["valueDecimals"] = 3
+        data2["datasets"][i]["data"] = []
+        data2["datasets"][i]["unit"] = "Response"
+        data2["datasets"][i]["type"] = "area"
+        data2["datasets"][i]["valueDecimals"] = 3
 
+    for sentence in tokenizedUserInput:
+        sentence = sentence.strip()
+        print(sentence)
+        vals = sentAnalysis(sentence, sentNum, False)
+        response.append([sentence, (sentNum % 2), vals[0], vals[1], vals[2], vals[3], vals[4]])
+        if sentNum % 2 == 0:
+            for i in range(5):
+                data2["datasets"][i]["data"].append(vals[i])
+        else:
+            for i in range(5):
+                data1["datasets"][i]["data"].append(vals[i])
+        sentNum += 1
+
+    data1["xData"] = []
+    data2["xData"] = []
+    for i in range(len(data1["datasets"][0]["data"])):
+        data1["xData"].append(i + 1)
+    for i in range(len(data2["datasets"][0]["data"])):
+        data2["xData"].append(i + 1)
     # Get emotion for entire passage as a whole.
-    sentAnalysis(userInput, sentNum, True)
+    # sentAnalysis(userInput, sentNum, True)
     # Create array for graphic visualization of emotions throughout the convo
-    # with open('graph.json', 'w') as outfile:
-    #     json.dump(graph, outfile)
+    with open('data1.json', 'w') as outfile:
+        json.dump(data1, outfile)
+    with open('data2.json', 'w') as outfile:
+        json.dump(data2, outfile)
     # return anger, surprise, fear, sadness, joy
+    print(response)
+    return data1, data2, response
 
 # Helper function to get emotion of a single sentence
 def sentAnalysis(sentence, sentNum, entireText):
@@ -87,10 +104,11 @@ def sentAnalysis(sentence, sentNum, entireText):
             else:
                 print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
-        emoVals = emoDict.values()
-        return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
-        
-# Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
+        # emoVals = list(emoDict.values())
+        # return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
+        return emoDict.values()
+
+# Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?!
 def voiceAnalysis():
 
     # Adding the API and importing the Vokaturi module
@@ -121,7 +139,7 @@ def voiceAnalysis():
     emotionProbabilities = Vokaturi.EmotionProbabilities()
     voice.extract(quality, emotionProbabilities)
     emoDict = {"Neutral" : emotionProbabilities.neutrality, "Happy" : emotionProbabilities.happiness,
-                "Sad" : emotionProbabilities.sadness, "Angry" : emotionProbabilities.anger, 
+                "Sad" : emotionProbabilities.sadness, "Angry" : emotionProbabilities.anger,
                 "Fear" : emotionProbabilities.fear}
 
     # Finding main emotion in voice file
@@ -151,13 +169,13 @@ def main(fileName):
     # To run the text analysis
     print("Text Analysis:")
     print("")
-    anger, surprise, fear, sadness, joy = textAnalysis(fileName)
+    data1, data2, response = textAnalysis(fileName)
 
     # To run the voice analysis
     # print("Voice Analysis:")
     # print("")
     #voiceAnalysis()
 
-    return anger, surprise, fear, sadness, joy
+    return data1, data2, response
 
 # main()

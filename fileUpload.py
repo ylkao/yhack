@@ -35,8 +35,9 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            anger, surprise, fear, sadness, joy = Emotional.main(filename)
-            return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
+            data1, data2, response = Emotional.main(filename)
+            # return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
+            return render_template('output.html', data1 = data1, data2=data2, response=response)
     return render_template('index.html')
 
 @app.route('/uploads/<filename>')
