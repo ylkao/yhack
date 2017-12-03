@@ -28,8 +28,9 @@ def textAnalysis(fileName):
 
     tokenizedUserInput = []
     with open ('uploads/' + fileName, "r") as myfile:
-        txt = myfile.read().replace("\r\n", "\n")
-        tokenizedUserInput = txt.split("\n\n")
+        # txt = myfile.read().replace("\r\n", "\n")
+        tokenizedUserInput = myfile.read().split("\n\n")
+    print(tokenizedUserInput)
     sentNum = 1
     # array for graphic visualization
     data1 = dict()
@@ -51,8 +52,10 @@ def textAnalysis(fileName):
         sentence = sentence.strip()
         #print(sentence)
         vals = sentAnalysis(sentence, sentNum, False)
-        response.append([sentence, (sentNum % 2), vals[0], vals[1], vals[2], vals[3], vals[4]])
+        response.append([sentence, (sentNum % 2), vals["anger"], vals["surprise"], vals["fear"], vals["sadness"], vals["joy"]])
+        vals = [vals["anger"], vals["surprise"], vals["fear"], vals["sadness"], vals["joy"]]
         if sentNum % 2 == 0:
+
             for i in range(5):
                 data2["datasets"][i]["data"].append(vals[i])
         else:
@@ -75,6 +78,9 @@ def textAnalysis(fileName):
         json.dump(data2, outfile)
     # return anger, surprise, fear, sadness, joy
     # print(response)
+    print(data1)
+    print(data2)
+    print(response)
     return data1, data2, response
 
 # Helper function to get emotion of a single sentence
@@ -83,6 +89,7 @@ def sentAnalysis(sentence, sentNum, entireText):
     # Determine which emotion(s) is/are most represented in the text
     emoDict = indicoio.emotion(sentence)
     sortedVals = sorted(emoDict.values())[::-1]
+    print(emoDict)
     isNeutral = True
 
     # Determine if the overall emotion is neutral or not
@@ -94,8 +101,7 @@ def sentAnalysis(sentence, sentNum, entireText):
             if percentage > abs(max(sortedVals) - 1.5 * stdDev):
                 emotions += [key for key, val in emoDict.items() if val == percentage]
 
-    emoVals = list(emoDict.values())
-    return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
+    return emoDict
 
         # # Send result back to web app, but just printing right now for testing purposes
         # if entireText:
@@ -112,6 +118,7 @@ def sentAnalysis(sentence, sentNum, entireText):
         #     else:
         #         print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
+
         
 # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
 def voiceAnalysis(fileName):
@@ -151,10 +158,12 @@ def voiceAnalysis(fileName):
     print("")
     print("timestamp0 len: " + str(len(timestamps0)))
     print("")
+    print(timestamps0)
     print("")
     print("")
     print("timestamp1 len: " + str(len(timestamps1)))
     print("")
+    print(timestamps1)
     print("")
     print("")
 
@@ -390,7 +399,7 @@ def sentEmotion(sentence):
 
 def main(fileName):
     # To run the text analysis
-    if fileName[len(fileName)-3:] is 'txt':
+    if fileName[len(fileName)-3:] == 'txt':
         # print("Text Analysis:")
         # print("")
         data1, data2, response = textAnalysis(fileName)

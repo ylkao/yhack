@@ -4,7 +4,9 @@
 <title>Emotions and Probabilities</title>
 </head>
 <style>
-
+body {
+    font-family: 'Bedrock';
+}
   .circle1, .circle2 {
     /*height: 50px;
     width: 50px;*/
@@ -92,7 +94,20 @@ document.getElementById("prev").disabled = true;
 changeSentence();
 
 function changeSentence() {
-  document.getElementById("sentence").innerHTML = data[index][0];
+    var info = data[index][0] + "<br>";
+
+    if (data[index][1] == 1) {
+        info += "Person 1" + "<br>";
+    } else {
+        info += "Person 2" + "<br>";
+    }
+    info += "Anger: " + data[index][2]  + "<br>";
+    info += "Surprise/Neutral: " + data[index][2]  + "<br>";
+    info += "Fear: " + data[index][2]  + "<br>";
+    info += "Sadness: " + data[index][2]  + "<br>";
+    info += "Joy: " + data[index][2]  + "<br>";
+    
+  document.getElementById("sentence").innerHTML = info;
   if(data[index][1] == 1) {
     document.getElementById("person1").style.backgroundColor = getColor(data[index]);
   } else {
@@ -356,7 +371,7 @@ function createGraph2(activity) {
                     title: {
                         text: 'probability'
                     },
-                    
+
                 },
                 tooltip: {
                     positioner: function () {

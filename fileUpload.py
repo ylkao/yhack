@@ -37,6 +37,7 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+            print(filename)
             # Emotional.main(filename, 'wav')
             #anger, surprise, fear, sadness, joy = Emotional.main(filename, file.filename.rsplit('.', 1)[1].lower())
             #return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
