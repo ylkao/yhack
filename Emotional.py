@@ -1,12 +1,16 @@
 import indicoio
 import sys
-import nltk
-nltk.download('punkt')
+# import nltk
+# nltk.download('punkt')
 import numpy
 import scipy.io.wavfile
 import json
 from watson_developer_cloud import SpeechToTextV1
 from pydub import AudioSegment
+
+# Adding the API and importing the Vokaturi module
+sys.path.append("/Users/nchao/Desktop/Yale Hacks/api")
+import Vokaturi
 
 # get file upload or text input
 
@@ -17,57 +21,61 @@ def textAnalysis(fileName):
     indicoio.config.api_key = '06ca2da07a6fd7c7746f1d4c202bdc5a'
 
     # Determine whether to use inputted text or to use user uploaded file
-    userInput = open('uploads/' + fileName).read()
-
-    # To test neutral case
-    # userInput = "Hello."
-
-    # To test else case
-    # userInput = "Mai nam i\'z Mr. Gabe, I am da boi, on Interwebz, Who breeng u joy.\
-    #             Wth all mai barkz, an sniffs an sneeze, I do teh sing, I am da meemz.\
-    #             Altho am nao, with starry light, up in heavan, I sleepng tight.\
-    #             So plz no cri, Remember mee, as happy boi, I'll always be."
-
-#     userInput = "Silence of the Lambs (1991) DR. LECTER Oh, Officer Starling... do you think you can \
-#     dissect me with this bluntlittle tool? CLARICE No. I only hoped that your knowledge \
-#     -Suddenly he whips the tray back at her, with a metallic CLANG that makes her start. His voice remains a pleasant purr. (CONT'D) You're sooo ambitious, aren't you...? You know what you look like tome, with your good bag and your cheap shoes? You look like a rube. Awell-scrubbed, hustling rube with a little taste... Good nutrition hasgiven you some length of bone, but you're not more than one generationfrom poor white trash, are you - Officer Starling...? That accentyou're trying so desperately to shed - pure West Virginia. What wasyour father, dear? Was he a coal miner? Did he stink of the lamp...? \
-#     And oh, how quickly the boys found you! All those tedious, sticky fumblings, in the back seats of cars, \
-#     while you could only dream of getting out. \
-#     Getting anywhere - yes? Getting all the way - to theF...B...I.His every word has struck her \
-#     like a tiny, precise dart. But shesquares her jaw and won't give ground. CLARICE \
-#     You see a lot, Dr. Lecter. But are you strong enough to point thathigh-powered perception at yourself? \
-#     How about it...? Look at yourselfand write down the truth.(she slams the tray back at him)Or maybe you're afraid to. \
-#     DR. LECTERYou're a tough one, aren't you? \
-# CLARICE Reasonably so. Yes. DR. LECTER And you'd hate to think you were common. \
-# My, wouldn't that sting! Wellyou're far from common, Officer Starling. All you have is the fear ofit. \
-# (beat)Now please excuse me. Good day. CLARICE And the questionnaire...? DR. LECTER \
-# A census taker once tried to test me. I ate his liver with some favabeans and a nice chianti... \
-# Fly back to school, little Starling."
+    # userInput = open('uploads/' + fileName).read()
 
     # Break up text into sentences and get emotion for each individual sentence
-    tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
+    # tokenizedUserInput = nltk.tokenize.sent_tokenize(userInput)
+
+    tokenizedUserInput = []
+    with open ('uploads/' + fileName, "r") as myfile:
+        txt = myfile.read().replace("\r\n", "\n")
+        tokenizedUserInput = txt.split("\n\n")
     sentNum = 1
     # array for graphic visualization
-    anger = []
-    surprise = []
-    fear = []
-    sadness = []
-    joy = []
+    data1 = dict()
+    data1["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    data2 = dict()
+    data2["datasets"] = [{"name": "Anger"}, {"name": "Surprise"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    response = []
+    for i in range(5):
+        data1["datasets"][i]["data"] = []
+        data1["datasets"][i]["unit"] = "Response"
+        data1["datasets"][i]["type"] = "area"
+        data1["datasets"][i]["valueDecimals"] = 3
+        data2["datasets"][i]["data"] = []
+        data2["datasets"][i]["unit"] = "Response"
+        data2["datasets"][i]["type"] = "area"
+        data2["datasets"][i]["valueDecimals"] = 3
+
     for sentence in tokenizedUserInput:
-        a, b, c, d, e = sentAnalysis(sentence, sentNum, False)
-        anger.append(a)
-        surprise.append(b)
-        fear.append(c)
-        sadness.append(d)
-        joy.append(e)
+        sentence = sentence.strip()
+        #print(sentence)
+        vals = sentAnalysis(sentence, sentNum, False)
+        response.append([sentence, (sentNum % 2), vals[0], vals[1], vals[2], vals[3], vals[4]])
+        if sentNum % 2 == 0:
+            for i in range(5):
+                data2["datasets"][i]["data"].append(vals[i])
+        else:
+            for i in range(5):
+                data1["datasets"][i]["data"].append(vals[i])
         sentNum += 1
 
+    data1["xData"] = []
+    data2["xData"] = []
+    for i in range(len(data1["datasets"][0]["data"])):
+        data1["xData"].append(i + 1)
+    for i in range(len(data2["datasets"][0]["data"])):
+        data2["xData"].append(i + 1)
     # Get emotion for entire passage as a whole.
-    sentAnalysis(userInput, sentNum, True)
+    # sentAnalysis(userInput, sentNum, True)
     # Create array for graphic visualization of emotions throughout the convo
-    # with open('graph.json', 'w') as outfile:
-    #     json.dump(graph, outfile)
-    return anger, surprise, fear, sadness, joy
+    with open('data1.json', 'w') as outfile:
+        json.dump(data1, outfile)
+    with open('data2.json', 'w') as outfile:
+        json.dump(data2, outfile)
+    # return anger, surprise, fear, sadness, joy
+    # print(response)
+    return data1, data2, response
 
 # Helper function to get emotion of a single sentence
 def sentAnalysis(sentence, sentNum, entireText):
@@ -104,6 +112,7 @@ def sentAnalysis(sentence, sentNum, entireText):
         #     else:
         #         print("Sentence " + str(sentNum) + " Emotion: " + ", ".join(emotions))
             # print(sentence)
+
         
 # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?! 
 def voiceAnalysis(fileName):
@@ -138,63 +147,100 @@ def voiceAnalysis(fileName):
             dialogue = [dictionary["from"]]
             curr_speaker = dictionary["speaker"]
 
-    print("timestamp0 len: " + str(len(timestamps0)))
-    print("tiemstamp1 len: " + str(len(timestamps1)))
+    # print("")
+    # print("timestamp0 len: " + str(len(timestamps0)))
+    # print("")
+    # print("timestamp0:")
+    # print(timestamps0)
+    # print("")
+    # print("timestamp1:")
+    # print(timestamps1)
+    # print("")
+    # print("timestamp1 len: " + str(len(timestamps1)))
+    # print("")
     
     # Get respective dialogue for each time stamp interval
     curr_speaker, time_index = 0, 0
     dialogue0, dialogue1, dialogue = [], [], ""
     for alternatives in jason["results"]:
-        for timestamps in alternatives:
-            for word in timestamps: #word is indexable
+        for timestamps in alternatives["alternatives"]:
+            for word in timestamps["timestamps"]: #word is indexable
                 if curr_speaker == 0:
-                    if word[2] > timestamps0[time_index][1]:
-                        curr_speaker = 1
-                        dialogue0.append(dialogue)
-                        dialogue = word[0] + " "
-                    else:
-                        dialogue += word[0] + " "
+
+                    # print("")
+                    # print("word")
+                    # print(word)
+                    # print("")
+                    # print("timestamps from dic")
+                    # print(timestamps)
+                    # print("")
+                    # print('time_index')
+                    # print(time_index)
+                    # print("")
+
+                    if time_index < len(timestamps0):
+                        if word[2] > timestamps0[time_index][1]:
+                            curr_speaker = 1
+                            dialogue0.append(dialogue)
+                            dialogue = word[0] + " "
+                        else:
+                            dialogue += word[0] + " "
+
                 if curr_speaker == 1:
-                    if word[2] > timestamps1[time_index][1]:
-                        curr_speaker = 0
-                        dialogue1.append(dialogue)
-                        dialogue = word[0] + " "
-                        time_index += 1
-                    else:
-                        dialogue += word[0] + " "
+                    if time_index < len(timestamps1):
+                        if word[2] > timestamps1[time_index][1]:
+                            curr_speaker = 0
+                            dialogue1.append(dialogue)
+                            dialogue = word[0] + " "
+                            time_index += 1
+                        else:
+                            dialogue += word[0] + " "
 
     # timestamps0, timestamps1 = [[start, end], [start, end]...]
     # dialogue0 & dialogue1 = ["text", "text", ...]
 
     #need split times in milliseconds
-    song = AudioSegment.from_wav(fileName) 
+    song = AudioSegment.from_wav("uploads/" + fileName) 
     index = 0
     fileList0, fileList1 = [], []
     for interval in timestamps0:
         chunk = song[interval[0]*1000 : interval[1]*1000]
-        name = "uploads/" + fileName + "_s0_" + str(index) + ".wav"
+        name = fileName[0:len(fileName)-4] + "_s0_" + str(index) + ".wav"
         chunk.export(name, format = "wav")
         fileList0.append(name)
         index += 1
     index = 0
     for interval in timestamps1:
         chunk = song[interval[0]*1000 : interval[1]*1000]
-        name = "uploads/" + fileName + "_s1_" + str(index) + ".wav"
+        name = fileName[0:len(fileName)-4] + "_s1_" + str(index) + ".wav"
         chunk.export(name, format = "wav")
         fileList1.append(name)
         index += 1
+
+   # print("time to DUELELELELELEELELELLELEL")
+
+
+
+
+
+                ######### YILING'S STUFF ########
+                # emoVals = list(emoDict.values())
+                # return [sentence, emoVals[0]],[sentence, emoVals[1]],[sentence, emoVals[2]],[sentence, emoVals[3]],[sentence, emoVals[4]]
+                # return list(emoDict.values())
+
+                # # Emotion analysis for voice audio --> Might need to split voice audio in sentences too!?!?!?!?!
+                # def voiceAnalysis():
+                # >>>>>>> 34eba002c10335b7d6cb453c50943471bfee25b4
+                #################################
+
+
+
+
 
     # dialogue0 & dialogue1 = ["text", "text", ...]
     # fileList0 & fileList1 = []
 
     # Loop through each audio file in fileList0 and fileList1 to analyze with vokaturi
-
-    # Adding the API and importing the Vokaturi module
-    sys.path.append("/Users/nchao/Desktop/Yale Hacks/api")
-    import Vokaturi
-
-    # Loading Vokaturi Mac
-    Vokaturi.load("/Users/nchao/Desktop/Yale Hacks/lib/Vokaturi_mac.so")
 
     # Get emotion probabilities for each individual voice file and save in person0_emotions & person1_emotions
     person0_emotions = []
@@ -203,12 +249,12 @@ def voiceAnalysis(fileName):
         sentenceDict = sentEmotion(dialogue0[i])
 
         #probabilities
-        joy = avg(audioDict["Happy"] + sentenceDict["Joy"])
-        sadness = avg(audioDict["Sad"] + sentenceDict["Sadness"])
-        neutral = avg(audioDict["Neutral"] + sentenceDict["Neutral"])
-        fear = avg(audioDict["Fear"] + sentenceDict["Fear"])
-        anger = avg(audioDict["Angry"] + sentenceDict["Anger"])
-        person0_emotions.append([neutral, joy, sadness, fear, anger])
+        joy = (audioDict["Happy"] + sentenceDict["joy"])/2
+        sadness = (audioDict["Sad"] + sentenceDict["sadness"])/2
+        neutral = (audioDict["Neutral"] + sentenceDict["neutral"])/2
+        fear = (audioDict["Fear"] + sentenceDict["fear"])/2
+        anger = (audioDict["Angry"] + sentenceDict["anger"])/2
+        person0_emotions.append([anger, neutral, fear, sadness, joy])
 
     person1_emotions = []
     for i in range(len(fileList1)):
@@ -216,29 +262,68 @@ def voiceAnalysis(fileName):
         sentenceDict = sentEmotion(dialogue1[i])
 
         #probabilities
-        joy = avg(audioDict["Happy"] + sentenceDict["Joy"])
-        sadness = avg(audioDict["Sad"] + sentenceDict["Sadness"])
-        neutral = avg(audioDict["Neutral"] + sentenceDict["Neutral"])
-        fear = avg(audioDict["Fear"] + sentenceDict["Fear"])
-        anger = avg(audioDict["Angry"] + sentenceDict["Anger"])
-        person1_emotions.append([neutral, joy, sadness, fear, anger])
+        joy = (audioDict["Happy"] + sentenceDict["joy"])/2
+        sadness = (audioDict["Sad"] + sentenceDict["sadness"])/2
+        neutral = (audioDict["Neutral"] + sentenceDict["neutral"])/2
+        fear = (audioDict["Fear"] + sentenceDict["fear"])/2
+        anger = (audioDict["Angry"] + sentenceDict["anger"])/2
+        person1_emotions.append([anger, neutral, fear, sadness, joy])
+
+    response = []
+    for i in range(len(dialogue0)):
+        anger0, anger1 = person0_emotions[i][0], person1_emotions[i][0]
+        neutral0, neutral1 = person0_emotions[i][1], person1_emotions[i][1]
+        fear0, fear1 = person0_emotions[i][2], person1_emotions[i][2]
+        sadness0, sadness1 = person0_emotions[i][3], person1_emotions[i][3]
+        joy0, joy1 = person0_emotions[i][4], person1_emotions[i][4]
+
+        response.append([dialogue0[i], 1, anger0, neutral0, fear0, sadness0, joy0])
+        response.append([dialogue1[i], 0, anger1, neutral1, fear1, sadness1, joy1])
+
+    data1 = voiceHelper(person0_emotions)
+    data2 = voiceHelper(person1_emotions)
+
+    return data1, data2, response
 
     # person0_emotions & person1_emotions are list of each person's emotions matching up to the dialogue they say
     # in dialogue0 and dialogue1.
 
-    print("Person 0 Emotions:")
-    print("")
-    print(person0_emotions)
-    print("")
-    print("Person 1 Emotions:")
-    print("")
-    print(person1_emotions)
+def voiceHelper(personEmotions):
+    # array for graphic visualization
+    data1 = dict()
+    data1["datasets"] = [{"name": "Anger"}, {"name": "Neutral"}, {"name": "Fear"}, {"name": "Sadness"}, {"name": "Joy"}] 
+    for i in range(5):
+        data1["datasets"][i]["data"] = []
+        data1["datasets"][i]["unit"] = "Response"
+        data1["datasets"][i]["type"] = "area"
+        data1["datasets"][i]["valueDecimals"] = 3
+
+    for j in range(len(personEmotions)):
+        vals = personEmotions[j]
+        for i in range(5):
+            data1["datasets"][i]["data"].append(vals[i])
+
+    data1["xData"] = []
+    for i in range(len(data1["datasets"][0]["data"])):
+        data1["xData"].append(i + 1)
+
+    # Create array for graphic visualization of emotions throughout the convo
+    with open('data1.json', 'w') as outfile:
+        json.dump(data1, outfile)
+    # return anger, surprise, fear, sadness, joy
+    #print(response)
+    return data1
+
+
 
 # Getting a dictionary with emotion probabilities for a voice file
 def callVokaturi(fileName):
 
+    # Loading Vokaturi Mac
+    Vokaturi.load("/Users/nchao/Desktop/Yale Hacks/lib/Vokaturi_mac.so")
+
     # Reading sound files (.wav)
-    file_name = "/Users/nchao/Desktop/Yale Hacks/uploads/" + fileName
+    file_name = "/Users/nchao/Desktop/Yale Hacks/" + fileName
     (sample_rate, samples) = scipy.io.wavfile.read(file_name)
 
     # Allocating Vokaturi sample array
@@ -250,7 +335,7 @@ def callVokaturi(fileName):
         c_buffer[:] = 0.5*(samples[:,0]+0.0+samples[:,1]) / 32768.0 # stereo
 
     # Creating VokaturiVoice and filling it with voice sample
-    voice = Vokaturi.Voice (sample_rate, buffer_length)
+    voice = Vokaturi.Voice(sample_rate, buffer_length)
     voice.fill(buffer_length, c_buffer)
 
     # Extracting emotions from Vokaturi
@@ -258,7 +343,7 @@ def callVokaturi(fileName):
     emotionProbabilities = Vokaturi.EmotionProbabilities()
     voice.extract(quality, emotionProbabilities)
     emoDict = {"Neutral" : emotionProbabilities.neutrality, "Happy" : emotionProbabilities.happiness,
-                "Sad" : emotionProbabilities.sadness, "Angry" : emotionProbabilities.anger, 
+                "Sad" : emotionProbabilities.sadness, "Angry" : emotionProbabilities.anger,
                 "Fear" : emotionProbabilities.fear}
 
     # Finding main emotion in voice file
@@ -275,31 +360,31 @@ def callVokaturi(fileName):
 def sentEmotion(sentence): 
 
     # Determine which emotion(s) is/are most represented in the text
+    indicoio.config.api_key = '06ca2da07a6fd7c7746f1d4c202bdc5a'
     emoDict = indicoio.emotion(sentence)
-
+    emoDict["neutral"] = emoDict["surprise"]
     # Determine if the overall emotion is neutral or not
-    if max(emoDict.values()) - min(emoDict.values()) > 0.1:
-        neutralEmoDict = {}
-        neutralEmoDict["Neutral"] = emoDict["Surprise"] + 0.85*emoDict["Fear"] + 0.85*emoDict["Anger"] + 0.85*emoDict["Joy"] + 0.85*emoDict["Sadness"]
-        neutralEmoDict["Fear"] = 0.15*emoDict["Fear"]
-        neutralEmoDict["Anger"] = 0.15*emoDict["Anger"]
-        neutralEmoDict["Joy"] = 0.15*emoDict["Joy"]
-        neutralEmoDict["Sadness"] = 0.15*emoDict["Sadness"]
-        return neutralEmoDict
+    # if max(emoDict.values()) - min(emoDict.values()) > 0.1:
+    #     neutralEmoDict = {}
+    #     neutralEmoDict["neutral"] = emoDict["surprise"] + 0.85*emoDict["fear"] + 0.85*emoDict["anger"] + 0.85*emoDict["joy"] + 0.85*emoDict["sadness"]
+    #     neutralEmoDict["fear"] = 0.15*emoDict["fear"]
+    #     neutralEmoDict["anger"] = 0.15*emoDict["anger"]
+    #     neutralEmoDict["joy"] = 0.15*emoDict["joy"]
+    #     neutralEmoDict["sadness"] = 0.15*emoDict["sadness"]
+    #     return neutralEmoDict
     return emoDict
 
-def main(fileName, fileType):
 
-    if fileType == "txt":
-        # To run the text analysis
-        anger, surprise, fear, sadness, joy = textAnalysis(fileName)
-        return anger, surprise, fear, sadness, joy
+
+def main(fileName):
+    # To run the text analysis
+    if fileName[len(fileName)-3:] is 'txt':
+        # print("Text Analysis:")
+        # print("")
+        data1, data2, response = textAnalysis(fileName)
+        return data1, data2, response
     else:
-        # To run the voice analysis
-        print("Voice Analysis:")
-        print("")
-        voiceAnalysis(fileName)
-
-    # return anger, surprise, fear, sadness, joy
+        data1, data2, response = voiceAnalysis(fileName)
+        return data1, data2, response
 
 # main()

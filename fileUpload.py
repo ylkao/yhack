@@ -14,6 +14,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route("/index")
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     anger = []
@@ -35,9 +36,13 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            Emotional.main(filename, 'wav')
+
+            # Emotional.main(filename, 'wav')
             #anger, surprise, fear, sadness, joy = Emotional.main(filename, file.filename.rsplit('.', 1)[1].lower())
             #return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
+            data1, data2, response = Emotional.main(filename)
+            # return render_template('output.html', anger=anger, surprise=surprise, fear=fear, sadness=sadness, joy=joy)
+            return render_template('output.html', data1 = data1, data2=data2, response=response)
     return render_template('index.html')
 
 @app.route('/uploads/<filename>')
